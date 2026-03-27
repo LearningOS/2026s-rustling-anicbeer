@@ -2,7 +2,8 @@
 	single linked list merge
 	This problem requires you to merge two ordered singly linked lists into one ordered singly linked list
 */
-// I AM NOT DONE
+
+
 
 use std::fmt::{self, Display, Formatter};
 use std::ptr::NonNull;
@@ -69,14 +70,72 @@ impl<T> LinkedList<T> {
             },
         }
     }
-	pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self
+	pub fn merge(mut list_a: LinkedList<T>, mut list_b: LinkedList<T>) -> Self
+	where
+		T: PartialOrd
 	{
-		//TODO
-		Self {
-            length: 0,
-            start: None,
-            end: None,
-        }
+		let mut result = LinkedList::new();
+		
+		// 将原链表的end指针置为None，避免内存双重释放
+		list_a.end = None;
+		list_b.end = None;
+		
+		let mut ptr_a = list_a.start;
+		let mut ptr_b = list_b.start;
+		
+		unsafe {
+			while ptr_a.is_some() || ptr_b.is_some() {
+				match (ptr_a, ptr_b) {
+					(Some(node_a), Some(node_b)) => {
+						let val_a = &(*node_a.as_ptr()).val;
+						let val_b = &(*node_b.as_ptr()).val;
+						
+						if val_a <= val_b {
+							ptr_a = (*node_a.as_ptr()).next;
+							(*node_a.as_ptr()).next = None;
+							match result.end {
+								None => result.start = Some(node_a),
+								Some(end_ptr) => (*end_ptr.as_ptr()).next = Some(node_a),
+							}
+							result.end = Some(node_a);
+							result.length += 1;
+						} else {
+							ptr_b = (*node_b.as_ptr()).next;
+							(*node_b.as_ptr()).next = None;
+							match result.end {
+								None => result.start = Some(node_b),
+								Some(end_ptr) => (*end_ptr.as_ptr()).next = Some(node_b),
+							}
+							result.end = Some(node_b);
+							result.length += 1;
+						}
+					},
+					(Some(node_a), None) => {
+						ptr_a = (*node_a.as_ptr()).next;
+						(*node_a.as_ptr()).next = None;
+						match result.end {
+							None => result.start = Some(node_a),
+							Some(end_ptr) => (*end_ptr.as_ptr()).next = Some(node_a),
+						}
+						result.end = Some(node_a);
+						result.length += 1;
+					},
+					(None, Some(node_b)) => {
+						ptr_b = (*node_b.as_ptr()).next;
+						(*node_b.as_ptr()).next = None;
+						match result.end {
+							None => result.start = Some(node_b),
+							Some(end_ptr) => (*end_ptr.as_ptr()).next = Some(node_b),
+						}
+						result.end = Some(node_b);
+						result.length += 1;
+					},
+					(None, None) => break,
+				}
+			}
+		}
+		
+		result
 	}
 }
 

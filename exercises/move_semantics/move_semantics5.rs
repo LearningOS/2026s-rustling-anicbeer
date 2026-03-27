@@ -4,7 +4,8 @@
 // changing or removing any of them.
 //
 // Execute `rustlings hint move_semantics5` or use the `hint` watch subcommand
-// for a hint.
+// for a hint
+
 
 
 fn main() {
